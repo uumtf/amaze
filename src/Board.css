@@ -1,0 +1,25 @@
+.board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+table, tr, td {
+  border: 2px solid gray;
+  box-sizing: border-box;
+  border-collapse: collapse;
+}
+
+td {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+tr {
+  padding: 0;
+}
+.wall {
+  background-color: black;
+}
