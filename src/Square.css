@@ -1,11 +1,12 @@
 .wall {
   background-color: black;
+  transition: background-color 300ms linear;
 }
 
 .start {
   background-color: green;
 }
 
-.end{
+.end {
   background-color: red;
 }

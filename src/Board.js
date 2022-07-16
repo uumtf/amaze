@@ -5,22 +5,26 @@ import './Board.css'
 
 import {fill_matrix, array_equals} from './Utils.js'
 
+import {generate} from './algos/GenerateMaze.js'
+
 export default class Board extends React.Component {
 
   constructor(props) {
     super(props);
-    this.squareSize = 30;
+    this.squareSize = 35;
     const columns = Math.floor(window.innerWidth/this.squareSize);
-    const rows = Math.floor((window.innerHeight-50)/this.squareSize);
+    const rows = Math.floor((window.innerHeight-60)/this.squareSize);
     this.state = {
       columns: columns, 
       rows: rows,
       startPoint: [0, 0],
       endPoint: [rows-1, columns-1],
       board: fill_matrix(rows, columns, 0),
-      mouseIsDown: undefined
+      mouseIsDown: undefined,
+      mazeDraw: true
     }
     
+    this.draw = true;
     this.state.board[this.state.startPoint[0]][this.state.startPoint[1]] = 2;
     this.state.board[this.state.endPoint[0]][this.state.endPoint[1]] = 3;
 
@@ -31,7 +35,35 @@ export default class Board extends React.Component {
     this.renderSquare = this.renderSquare.bind(this);
     this.resetBoard = this.resetBoard.bind(this);
 
+    this.generateMaze = this.generateMaze.bind(this);
+
   }
+
+  sleep() {
+    return new Promise(resolve => setTimeout(resolve, 50));
+  }
+
+  async generateMaze(type) {
+    await this.resetBoard();
+    let blocks = [];
+    blocks = generate(type, this.state.startPoint, this.state.endPoint, [0,0], [this.state.rows-1, this.state.columns-1]);
+    let new_board = this.state.board;
+    this.draw = true;
+    for(let index in blocks) {
+      if(this.draw == false) {
+        this.resetBoard();
+        break;
+      }
+      new_board[blocks[index][0]][blocks[index][1]] = 1;
+      if(index % 3 == 0) {
+        this.setState({
+          board: new_board,
+        });
+        await this.sleep();
+      }
+    }
+  }
+
 
   renderSquare(row, column) {
     let key = row+"-"+column;
@@ -52,7 +84,10 @@ export default class Board extends React.Component {
 
   setNewStartPoint(row, column) {
     let new_board = this.state.board;
-    new_board[this.state.startPoint[0]][this.state.startPoint[1]] = 0;
+    for(let i = 0; i < this.state.rows; i++)
+      for(let j = 0; j < this.state.columns; j++)
+        if(new_board[i][j] == 2)
+          new_board[i][j] = 0;
     new_board[row][column] = 2;
     this.setState({
       board: new_board,
@@ -62,7 +97,10 @@ export default class Board extends React.Component {
 
   setNewEndPoint(row, column) {
     let new_board = this.state.board;
-    new_board[this.state.endPoint[0]][this.state.endPoint[1]] = 0;
+    for(let i = 0; i < this.state.rows; i++)
+      for(let j = 0; j < this.state.columns; j++)
+        if(new_board[i][j] == 3)
+          new_board[i][j] = 0;
     new_board[row][column] = 3;
     this.setState({
       board: new_board,
@@ -70,10 +108,13 @@ export default class Board extends React.Component {
     });
   }
 
-  resetBoard() {
-    console.log("reset");
+  async resetBoard() {
+    this.setState({
+      mazeDraw: false
+    })
+    this.draw = false;
     const new_columns = Math.floor(window.innerWidth/this.squareSize);
-    const new_rows = Math.floor((window.innerHeight-50)/this.squareSize);
+    const new_rows = Math.floor((window.innerHeight-60)/this.squareSize);
     let new_board = fill_matrix(new_rows, new_columns, 0);
     new_board[0][0] = 2;
     new_board[new_rows-1][new_columns-1] = 3;
@@ -126,7 +167,7 @@ export default class Board extends React.Component {
       this.setNewEndPoint(row, column);
     }
     this.setState({
-      mouseIsDown: undefined,
+      mouseIsDown: undefined
     });
   }
 
@@ -142,9 +183,14 @@ export default class Board extends React.Component {
       else
         new_board[row][column] = 0;
       this.setState({
-        mouseIsDown: "default",
         board: new_board
       });
+    }
+    if(this.state.mouseIsDown == "start") {
+      this.setNewStartPoint(row, column); 
+    }
+    if(this.state.mouseIsDown == "end") {
+      this.setNewEndPoint(row, column); 
     }
   }
 

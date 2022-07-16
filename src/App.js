@@ -5,12 +5,19 @@ import Board from './Board'
 
 
 export default class App extends React.Component {
+  
+  constructor(props) {
+    super(props);
+
+    this.boardRef = React.createRef();
+  }
 
   render() {
     return (
       <div className="App">
-        <Header onClick={() => this.content.resetBoard()}></Header>
-        <Board ref={instance => {this.content = instance;}}></Board>
+        <Header onResetClick={() => this.boardRef.current.resetBoard()}
+                onGenerateClick={(type) => this.boardRef.current.generateMaze(type)}></Header>
+        <Board ref={this.boardRef}></Board>
       </div>
     );
   }
