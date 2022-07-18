@@ -25,6 +25,7 @@ export default class Header extends React.Component {
                 onChange={(e) => this.generateClick(e.target.value)}>
           <option value="recursive">Recursive</option>
           <option value="backtracking">Backtracking</option>
+          <option value="kruskal">Kruskal</option>
         </select>
         <button onClick={() => this.props.onGenerateClick(this.state.generationType)}>GenerateMaze</button>
       </div>

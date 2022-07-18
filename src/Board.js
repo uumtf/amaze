@@ -11,10 +11,13 @@ export default class Board extends React.Component {
 
   constructor(props) {
     super(props);
-    this.squareSize = 35;
-    const columns = Math.floor(window.innerWidth/this.squareSize);
-    const rows = Math.floor((window.innerHeight-60)/this.squareSize);
+
+    let boardParams = this.generateBoard();
+    let rows = boardParams[0];
+    let columns = boardParams[1];
+    let squareSize = boardParams[2];
     this.state = {
+      squareSize: squareSize,
       columns: columns, 
       rows: rows,
       startPoint: [0, 0],
@@ -35,11 +38,30 @@ export default class Board extends React.Component {
     this.resetBoard = this.resetBoard.bind(this);
 
     this.generateMaze = this.generateMaze.bind(this);
+    this.generateBoard = this.generateBoard.bind(this);
 
   }
 
+  generateBoard() {
+    const width = window.innerWidth;
+    const height = window.innerHeight-60;
+    let rows, columns, squareSize;
+    if(width > height) {
+      columns = 35;
+      squareSize = Math.floor(width/columns);
+      rows = Math.floor(height/squareSize);
+    }
+    else {
+      rows = 35;
+      squareSize = Math.floor(height/rows);
+      columns = Math.floor(width/squareSize);
+    }
+    console.log(width, height, rows, columns, squareSize);
+    return [rows, columns, squareSize];
+  }
+
   sleep() {
-    return new Promise(resolve => setTimeout(resolve, 16));
+    return new Promise(resolve => setTimeout(resolve, 10));
   }
 
   async generateMaze(type) {
@@ -47,7 +69,7 @@ export default class Board extends React.Component {
       return;
     }
     let blockValue = 1, fillValue = 0;
-    if(type == "backtracking") {
+    if(type == "backtracking" || type == "kruskal") {
       blockValue = 0;
       fillValue = 1;
     }
@@ -59,7 +81,7 @@ export default class Board extends React.Component {
     for(let index in blocks) {
       if(this.draw == false) {
         this.resetBoard();
-        break;
+        return;
       }
       this.state.board[blocks[index][0]][blocks[index][1]] = blockValue;
       if(index % 2 == 0) {
@@ -87,7 +109,8 @@ export default class Board extends React.Component {
           type={this.state.board[row][column]} 
           row={row} column={column} 
           start={start} end={end}
-          key={key}>
+          key={key}
+          size={this.state.squareSize}>
       </Square>
     );
   }
@@ -120,21 +143,24 @@ export default class Board extends React.Component {
 
   async resetBoard(value = 0, startPoint, endPoint) {
     this.draw = false;
-    const new_columns = Math.floor(window.innerWidth/this.squareSize);
-    const new_rows = Math.floor((window.innerHeight-60)/this.squareSize);
-    this.state.board = fill_matrix(new_rows, new_columns, value);
+    let boardParams = this.generateBoard();
+    let rows = boardParams[0];
+    let columns = boardParams[1];
+    let squareSize = boardParams[2];
+    this.state.board = fill_matrix(rows, columns, value);
 
     if(startPoint == undefined)
       startPoint = [0, 0]
     this.state.board[startPoint[0]][startPoint[1]] = 2;
 
     if(endPoint == undefined)
-      endPoint = [new_rows-1, new_columns-1]
+      endPoint = [rows-1, columns-1]
     this.state.board[endPoint[0]][endPoint[1]] = 3;
 
     this.setState({
-      columns: new_columns,
-      rows: new_rows,
+      squareSize: squareSize,
+      columns: columns,
+      rows: rows,
       board: this.state.board,
       startPoint: startPoint,
       endPoint: endPoint,
@@ -148,6 +174,8 @@ export default class Board extends React.Component {
   
   mouseDown(e, row, column) {
     e.preventDefault();
+    if(this.draw)
+      return;
     if(array_equals([row, column], this.state.startPoint)) {
       console.log("start");
       this.setState({

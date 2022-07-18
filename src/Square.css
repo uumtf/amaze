@@ -1,11 +1,11 @@
 .wall {
   background-color: black;
-  transition: background-color 50ms linear;
+  transition: background-color 10ms linear;
 }
 
 .cell {
   background-color: white;
-  transition: background-color 50ms linear;
+  transition: background-color 10ms linear;
 }
 .start {
   background-color: green;

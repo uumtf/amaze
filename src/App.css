@@ -11,9 +11,3 @@ html, body, #root, .App {
   flex-direction: column;
 }
 
-button {
-  background: none;
-  border: none;
-  font-size: 26px;
-  padding: 5px;
-}
