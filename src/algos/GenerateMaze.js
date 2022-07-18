@@ -10,10 +10,16 @@ let directions = [
 let grid;
 let parents = [];
 let edges = [];
-function randomEvenNum(min, max) {
+let marked = [];
+
+function random_even_int(min, max) {
   min = Math.floor(min);
   max = Math.ceil(max);
   return Math.floor(Math.random() * ((max - min) / 2 + 1)) * 2 + min;
+}
+
+function check_block(point) {
+  return grid[point[0]][point[1]] < 2;
 }
 
 function recursive(leftUp, rightDown) {
@@ -23,8 +29,8 @@ function recursive(leftUp, rightDown) {
     return;
   if(height > width) {
     // horizontal split
-    let wall = randomEvenNum(leftUp[0]+1, leftUp[0]+height-1);
-    let space = [wall, randomEvenNum(leftUp[1], rightDown[1])];
+    let wall = random_even_int(leftUp[0]+1, leftUp[0]+height-1);
+    let space = [wall, random_even_int(leftUp[1], rightDown[1])];
     for(let i=leftUp[1]; i <= rightDown[1]; i++) { 
       if(grid[wall][i] > 1 ||
         array_equals(space, [wall, i]))
@@ -36,8 +42,8 @@ function recursive(leftUp, rightDown) {
   }
   else {
     // vertical split
-    let wall = randomEvenNum(leftUp[1]+1, leftUp[1]+width-1);
-    let space = [randomEvenNum(leftUp[0], rightDown[0]), wall];
+    let wall = random_even_int(leftUp[1]+1, leftUp[1]+width-1);
+    let space = [random_even_int(leftUp[0], rightDown[0]), wall];
     for(let i=leftUp[0]; i <= rightDown[0]; i++) {
       if(grid[i][wall] > 1 ||
         array_equals(space, [i, wall]))
@@ -57,9 +63,9 @@ function check_direction(rows, columns, first, second) {
       second[1] < 0 || second[1] >= columns)
     return false;
 
-  //check that squares are walls
-  if(grid[first[0]][first[1]] != 1 ||
-     grid[second[0]][second[1]] != 1)
+  //check that squares are not empty
+  if(grid[first[0]][first[1]] == 0 ||
+     grid[second[0]][second[1]] == 0)
     return false;
 
   return true;
@@ -71,10 +77,14 @@ function backtracking(rows, columns, point) {
     let first = [point[0] + directions[i][0], point[1] + directions[i][1]];
     let second = [point[0] + directions[i][0]*2, point[1] + directions[i][1]*2];
     if(check_direction(rows, columns, first, second)) {
-      blocks.push(first);
-      blocks.push(second);
-      grid[first[0]][first[1]] = 0;
-      grid[second[0]][second[1]] = 0;
+      if(check_block(first)) {
+        blocks.push(first);
+        grid[first[0]][first[1]] = 0;
+      }
+      if(check_block(second)) {
+        blocks.push(second);
+        grid[second[0]][second[1]] = 0;
+      }
       backtracking(rows, columns, second);
     }
   }
@@ -121,12 +131,42 @@ function kruskal(rows, columns) {
     }
     if(dsu_get(first) != dsu_get(second)) {
       dsu_unite(first, second);
-      if(grid[edges[i][0]][edges[i][1]] < 2)
+      if(check_block(edges[i]))
         blocks.push(edges[i]);
     }
   }
 }
 
+function markNeighbours(point, rows, columns) {
+  for(let i in directions) {
+    let first = [point[0] + directions[i][0], point[1] + directions[i][1]];
+    let second = [point[0] + directions[i][0]*2, point[1] + directions[i][1]*2];
+    if(check_direction(rows, columns, first, second)) 
+      marked.push([first, second]); 
+  }
+}
+
+function prim(start, rows, columns) {
+  if(grid[start[0]][start[1]] < 2)
+    blocks.push(start);
+  markNeighbours(start, rows, columns);
+  while(marked.length > 0) {
+    let current = Math.floor(Math.random()*marked.length);
+    let first = marked[current][0], second = marked[current][1];
+    if(check_direction(rows, columns, first, second)) {
+      if(check_block(first)) {
+        blocks.push(first);
+        grid[first[0]][first[1]] = 0;
+      }
+      if(check_block(second)) {
+        blocks.push(second);
+        grid[second[0]][second[1]] = 0;
+      }
+      markNeighbours(second, rows, columns);
+    }
+    marked.splice(current, 1);
+  }
+}
 
 export function generate(type, startPoint, endPoint, board, rows, columns) {
   blocks = [];
@@ -137,5 +177,7 @@ export function generate(type, startPoint, endPoint, board, rows, columns) {
     backtracking(rows, columns, startPoint);
   if(type == "kruskal") 
     kruskal(rows, columns); 
+  if(type == "prim")
+    prim([0, 0], rows, columns);
   return blocks;
 }

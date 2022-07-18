@@ -26,6 +26,7 @@ export default class Header extends React.Component {
           <option value="recursive">Recursive</option>
           <option value="backtracking">Backtracking</option>
           <option value="kruskal">Kruskal</option>
+          <option value="prim">Prim</option>
         </select>
         <button onClick={() => this.props.onGenerateClick(this.state.generationType)}>GenerateMaze</button>
       </div>

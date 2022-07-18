@@ -69,7 +69,7 @@ export default class Board extends React.Component {
       return;
     }
     let blockValue = 1, fillValue = 0;
-    if(type == "backtracking" || type == "kruskal") {
+    if(type == "backtracking" || type == "kruskal" || type == "prim") {
       blockValue = 0;
       fillValue = 1;
     }
