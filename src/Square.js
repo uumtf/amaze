@@ -18,6 +18,10 @@ export default class Square extends React.Component {
       className += " end"
     else if(this.props.type == 1)
       className += " wall";
+    else if(this.props.type == 4) 
+      className += " visited";
+    else if(this.props.type == 5) 
+      className += " path";
     return (
       <td className = {className} 
           onMouseDown={(e) => this.props.onMouseDown(e, this.props.row, this.props.column)}

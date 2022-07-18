@@ -14,3 +14,11 @@
 .end {
   background-color: red;
 }
+
+.visited {
+  background-color: yellow;
+}
+
+.path {
+  background-color: lightblue;
+}

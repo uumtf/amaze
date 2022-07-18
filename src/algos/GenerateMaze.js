@@ -1,4 +1,4 @@
-import {fill_matrix, array_equals, array_shuffle} from '../Utils.js'
+import {fill_matrix, array_equals, array_shuffle, matrix_copy} from '../Utils.js'
 
 let blocks = [];
 let directions = [
@@ -137,7 +137,7 @@ function kruskal(rows, columns) {
   }
 }
 
-function markNeighbours(point, rows, columns) {
+function mark_neighbours(point, rows, columns) {
   for(let i in directions) {
     let first = [point[0] + directions[i][0], point[1] + directions[i][1]];
     let second = [point[0] + directions[i][0]*2, point[1] + directions[i][1]*2];
@@ -149,7 +149,7 @@ function markNeighbours(point, rows, columns) {
 function prim(start, rows, columns) {
   if(grid[start[0]][start[1]] < 2)
     blocks.push(start);
-  markNeighbours(start, rows, columns);
+  mark_neighbours(start, rows, columns);
   while(marked.length > 0) {
     let current = Math.floor(Math.random()*marked.length);
     let first = marked[current][0], second = marked[current][1];
@@ -162,7 +162,7 @@ function prim(start, rows, columns) {
         blocks.push(second);
         grid[second[0]][second[1]] = 0;
       }
-      markNeighbours(second, rows, columns);
+      mark_neighbours(second, rows, columns);
     }
     marked.splice(current, 1);
   }
@@ -170,7 +170,7 @@ function prim(start, rows, columns) {
 
 export function generate(type, startPoint, endPoint, board, rows, columns) {
   blocks = [];
-  grid = board;
+  grid = matrix_copy(board); 
   if(type == "recursive") 
     recursive([0,0], [rows-1, columns-1]);
   if(type == "backtracking")

@@ -8,13 +8,20 @@ export default class Header extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      generationType: "recursive"
+      generationType: "recursive",
+      solveType: "bfs"
     }
   }
   
   generateClick(type) {
     this.setState({
       generationType: type
+    });
+  }
+
+  solveClick(type) {
+    this.setState({
+      solveType: type 
     });
   }
   render() {
@@ -28,7 +35,12 @@ export default class Header extends React.Component {
           <option value="kruskal">Kruskal</option>
           <option value="prim">Prim</option>
         </select>
-        <button onClick={() => this.props.onGenerateClick(this.state.generationType)}>GenerateMaze</button>
+        <button onClick={() => this.props.onGenerateClick(this.state.generationType)}>Generate maze</button>
+        <select className="solve-type"
+                onChange={(e) => this.solveClick(e.target.value)}>
+          <option value="bfs">BFS</option>
+        </select>
+        <button onClick={() => this.props.onSolveClick(this.state.solveType)}>Solve maze</button>
       </div>
     );
   }

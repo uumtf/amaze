@@ -16,7 +16,8 @@ export default class App extends React.Component {
     return (
       <div className="App">
         <Header onResetClick={() => this.boardRef.current.resetBoard()}
-                onGenerateClick={(type) => this.boardRef.current.generateMaze(type)}></Header>
+                onGenerateClick={(type) => this.boardRef.current.generateMaze(type)}
+                onSolveClick={(type) => this.boardRef.current.solveMaze(type)}></Header>
         <Board ref={this.boardRef}></Board>
       </div>
     );

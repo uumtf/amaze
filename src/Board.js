@@ -6,6 +6,7 @@ import './Board.css'
 import {fill_matrix, array_equals} from './Utils.js'
 
 import {generate} from './algos/GenerateMaze.js'
+import {solve} from './algos/SolveMaze.js'
 
 export default class Board extends React.Component {
 
@@ -27,6 +28,7 @@ export default class Board extends React.Component {
     }
     
     this.draw = false;
+    this.solve = false;
     this.state.board[this.state.startPoint[0]][this.state.startPoint[1]] = 2;
     this.state.board[this.state.endPoint[0]][this.state.endPoint[1]] = 3;
 
@@ -65,7 +67,7 @@ export default class Board extends React.Component {
   }
 
   async generateMaze(type) {
-    if(this.draw == true) {
+    if(this.draw == true || this.solve == true) {
       return;
     }
     let blockValue = 1, fillValue = 0;
@@ -76,7 +78,6 @@ export default class Board extends React.Component {
     await this.resetBoard(fillValue, this.state.startPoint, this.state.endPoint);
     let blocks = [];
     blocks = generate(type, this.state.startPoint, this.state.endPoint, this.state.board, this.state.rows, this.state.columns);
-    await this.resetBoard(fillValue, this.state.startPoint, this.state.endPoint);
     this.draw = true;
     for(let index in blocks) {
       if(this.draw == false) {
@@ -95,6 +96,59 @@ export default class Board extends React.Component {
         board: this.state.board
     });
     this.draw = false;
+  }
+
+  removePath() {
+    for(let row=0; row<this.state.rows; row++) 
+      for(let column=0; column<this.state.columns; column++)
+        if(this.state.board[row][column] > 3)
+          this.state.board[row][column] = 0;
+    this.setState({
+      board: this.state.board
+    });
+  }
+
+  async solveMaze(type) {
+    if(this.solve == true || this.draw == true) {
+      return;
+    }
+    this.removePath();
+    this.solve = true;
+    let solved = solve(type, this.state.board, this.state.startPoint, this.state.endPoint, this.state.rows, this.state.columns);
+    let step = solved[0], path = solved[1];
+    for(let index in step) {
+      if(this.solve == false) {
+        this.resetBoard();
+        return;
+      }
+      this.state.board[step[index][0]][step[index][1]] = 4;
+      if(index % 2 == 0){
+        this.setState({
+          board: this.state.board,
+        });
+        await this.sleep();
+      }
+    }
+    this.setState({
+      board: this.state.board
+    });
+    for(let index in path) {
+      if(this.solve == false) {
+        this.resetBoard();
+        return;
+      }
+      this.state.board[path[index][0]][path[index][1]] = 5;
+      if(index % 2 == 0){
+        this.setState({
+          board: this.state.board,
+        });
+        await this.sleep();
+      }
+    }
+    this.setState({
+      board: this.state.board
+    });
+    this.solve = false;
   }
 
   renderSquare(row, column) {
@@ -143,6 +197,7 @@ export default class Board extends React.Component {
 
   async resetBoard(value = 0, startPoint, endPoint) {
     this.draw = false;
+    this.solve = false;
     let boardParams = this.generateBoard();
     let rows = boardParams[0];
     let columns = boardParams[1];
@@ -174,7 +229,7 @@ export default class Board extends React.Component {
   
   mouseDown(e, row, column) {
     e.preventDefault();
-    if(this.draw)
+    if(this.draw || this.solve)
       return;
     if(array_equals([row, column], this.state.startPoint)) {
       console.log("start");
