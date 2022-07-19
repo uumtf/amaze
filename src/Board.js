@@ -14,7 +14,7 @@ export default class Board extends React.Component {
     super(props);
 
     this.mainSize = 35;
-    this.mobileSize = 20;
+    this.mobileSize = 25;
     let boardParams = this.generateBoard();
     let rows = boardParams[0];
     let columns = boardParams[1];
