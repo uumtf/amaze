@@ -90,6 +90,30 @@ function a_star(rows, columns, startPoint, endPoint) {
     path.push(v);
 }
 
+function greedy(rows, columns, startPoint, endPoint) {
+  marked.push(startPoint);
+  mark_neighbours(startPoint, rows, columns, endPoint);
+  let found = false;
+  while(marked.length > 0 && found == false) {
+    marked.sort(function(first, second) {
+      let firstValue = distance(first, endPoint);
+      let secondValue = distance(second, endPoint);
+      return firstValue - secondValue;
+    });
+    let current = marked.shift();
+    if(!array_equals(startPoint, current) &&
+        !array_equals(endPoint, current))
+      steps.push(current); 
+    if(array_equals(endPoint, current)) {
+      found = true;
+    }
+    mark_neighbours(current, rows, columns, endPoint);
+  }
+  if(!found) return;
+  for(let v = parents[endPoint[0]][endPoint[1]]; !array_equals(v, startPoint); v = parents[v[0]][v[1]])
+    path.push(v);
+}
+
 export function solve(type, board, startPoint, endPoint, rows, columns) {
   grid = matrix_copy(board); 
   parents = fill_matrix(rows, columns, [-1, -1]);
@@ -101,5 +125,7 @@ export function solve(type, board, startPoint, endPoint, rows, columns) {
     bfs(rows, columns, startPoint, endPoint);
   if(type == "astar")
     a_star(rows, columns, startPoint, endPoint);
+  if(type == "greedy")
+    greedy(rows, columns, startPoint, endPoint);
   return [steps, path];
 }
