@@ -25,6 +25,7 @@ export default class Board extends React.Component {
       endPoint: [rows-1, columns-1],
       board: fill_matrix(rows, columns, 0),
       mouseIsDown: undefined,
+      pathOnBoard: false
     }
     
     this.draw = false;
@@ -104,7 +105,8 @@ export default class Board extends React.Component {
         if(this.state.board[row][column] > 3)
           this.state.board[row][column] = 0;
     this.setState({
-      board: this.state.board
+      board: this.state.board,
+      pathOnBoard: false
     });
   }
 
@@ -115,13 +117,13 @@ export default class Board extends React.Component {
     this.removePath();
     this.solve = true;
     let solved = solve(type, this.state.board, this.state.startPoint, this.state.endPoint, this.state.rows, this.state.columns);
-    let step = solved[0], path = solved[1];
-    for(let index in step) {
+    let steps = solved[0], path = solved[1];
+    for(let index in steps) {
       if(this.solve == false) {
         this.resetBoard();
         return;
       }
-      this.state.board[step[index][0]][step[index][1]] = 4;
+      this.state.board[steps[index][0]][steps[index][1]] = 4;
       if(index % 2 == 0){
         this.setState({
           board: this.state.board,
@@ -146,7 +148,8 @@ export default class Board extends React.Component {
       }
     }
     this.setState({
-      board: this.state.board
+      board: this.state.board,
+      pathOnBoard: true
     });
     this.solve = false;
   }
@@ -219,7 +222,8 @@ export default class Board extends React.Component {
       board: this.state.board,
       startPoint: startPoint,
       endPoint: endPoint,
-      mouseIsDown: undefined
+      mouseIsDown: undefined,
+      pathOnBoard: false
     });
   }
 
@@ -231,6 +235,9 @@ export default class Board extends React.Component {
     e.preventDefault();
     if(this.draw || this.solve)
       return;
+
+    if(this.state.pathOnBoard)
+      this.removePath();
     if(array_equals([row, column], this.state.startPoint)) {
       console.log("start");
       this.setState({
@@ -273,6 +280,8 @@ export default class Board extends React.Component {
         array_equals([row, column], this.state.endPoint)) {
       return;
     }
+    if(this.state.mouseIsDown && this.state.pathOnBoard)
+      this.removePath();
     if(this.state.mouseIsDown == "default") {
       this.state.board = this.state.board;
       if(this.state.board[row][column] == 0)

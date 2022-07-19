@@ -39,6 +39,7 @@ export default class Header extends React.Component {
         <select className="solve-type"
                 onChange={(e) => this.solveClick(e.target.value)}>
           <option value="bfs">BFS</option>
+          <option value="astar">A*</option>
         </select>
         <button onClick={() => this.props.onSolveClick(this.state.solveType)}>Solve maze</button>
       </div>

@@ -18,7 +18,7 @@ function random_even_int(min, max) {
   return Math.floor(Math.random() * ((max - min) / 2 + 1)) * 2 + min;
 }
 
-function check_block(point) {
+function check_start_end(point) {
   return grid[point[0]][point[1]] < 2;
 }
 
@@ -55,19 +55,19 @@ function recursive(leftUp, rightDown) {
   }
 }
 
-function check_direction(rows, columns, first, second) {
-  //check borders
-  if(first[0] < 0 || first[0] >= rows ||
-      first[1] < 0 || first[1] >= columns ||
-      second[0] < 0 || second[0] >= rows ||
-      second[1] < 0 || second[1] >= columns)
-    return false;
+function check_points(rows, columns, points, types) {
+  for(let i in points) {
+    let point = points[i];
+    //check borders
+    if(point[0] < 0 || point[0] >= rows ||
+        point[1] < 0 || point[1] >= columns)
+      return false;
 
-  //check that squares are not empty
-  if(grid[first[0]][first[1]] == 0 ||
-     grid[second[0]][second[1]] == 0)
-    return false;
-
+    //check types
+    for(let j in types)
+      if(grid[point[0]][point[1]] == types[j])
+        return false;
+  }
   return true;
 }
 
@@ -76,12 +76,12 @@ function backtracking(rows, columns, point) {
   for(let i in directions) {
     let first = [point[0] + directions[i][0], point[1] + directions[i][1]];
     let second = [point[0] + directions[i][0]*2, point[1] + directions[i][1]*2];
-    if(check_direction(rows, columns, first, second)) {
-      if(check_block(first)) {
+    if(check_points(rows, columns, [first, second], [0])) {
+      if(check_start_end(first)) {
         blocks.push(first);
         grid[first[0]][first[1]] = 0;
       }
-      if(check_block(second)) {
+      if(check_start_end(second)) {
         blocks.push(second);
         grid[second[0]][second[1]] = 0;
       }
@@ -91,6 +91,7 @@ function backtracking(rows, columns, point) {
 }
 
 function dsu_get(point) {
+  //console.log(point);
   let p = parents[point[0]][point[1]];
   return (point == p ?
           point : 
@@ -109,7 +110,7 @@ function kruskal(rows, columns) {
   for(let row=0; row<rows; row++) {
     for(let column=0; column<columns; column++) {
       if(row%2 == 0 && column%2 == 0) {
-        if( grid[row][column] < 2)
+        if(grid[row][column] < 2)
           blocks.push([row, column]);
         parents[row][column] = [row, column];
       }
@@ -118,6 +119,7 @@ function kruskal(rows, columns) {
       }
     }
   }
+
   array_shuffle(edges);
   for(let i in edges) {
     let first, second;
@@ -129,9 +131,12 @@ function kruskal(rows, columns) {
       first = [edges[i][0]-1, edges[i][1]];
       second = [edges[i][0]+1, edges[i][1]];
     }
+    if(!check_points(rows, columns, [first, second], [0]))
+      continue;
+
     if(dsu_get(first) != dsu_get(second)) {
       dsu_unite(first, second);
-      if(check_block(edges[i]))
+      if(check_start_end(edges[i]))
         blocks.push(edges[i]);
     }
   }
@@ -141,7 +146,7 @@ function mark_neighbours(point, rows, columns) {
   for(let i in directions) {
     let first = [point[0] + directions[i][0], point[1] + directions[i][1]];
     let second = [point[0] + directions[i][0]*2, point[1] + directions[i][1]*2];
-    if(check_direction(rows, columns, first, second)) 
+    if(check_points(rows, columns, [first, second], [0])) 
       marked.push([first, second]); 
   }
 }
@@ -153,12 +158,12 @@ function prim(start, rows, columns) {
   while(marked.length > 0) {
     let current = Math.floor(Math.random()*marked.length);
     let first = marked[current][0], second = marked[current][1];
-    if(check_direction(rows, columns, first, second)) {
-      if(check_block(first)) {
+    if(check_points(rows, columns, [first, second], [0])) {
+      if(check_start_end(first)) {
         blocks.push(first);
         grid[first[0]][first[1]] = 0;
       }
-      if(check_block(second)) {
+      if(check_start_end(second)) {
         blocks.push(second);
         grid[second[0]][second[1]] = 0;
       }
@@ -178,6 +183,6 @@ export function generate(type, startPoint, endPoint, board, rows, columns) {
   if(type == "kruskal") 
     kruskal(rows, columns); 
   if(type == "prim")
-    prim([0, 0], rows, columns);
+    prim(startPoint, rows, columns);
   return blocks;
 }
