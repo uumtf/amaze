@@ -3,15 +3,28 @@
   display: flex;
   flex-direction: row;
   height: 100%;
-  padding: 10px;
-  gap: 10px;
+  padding: 2%;
+  gap: 2%;
 }
 
 button {
   background: lightblue;
   border: 1px solid black;
   box-sizing: border-box;
-  font-size: 20px;
-  padding: 5px;
+  padding: 1%;
   cursor: pointer;
+}
+
+button, select, option {
+  font-size: 20px;
+}
+
+select {
+  padding: 1%;
+}
+
+@media only screen and (max-width: 600px) {
+  button, select, option {
+    font-size: 10px;
+  }
 }

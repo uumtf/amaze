@@ -13,6 +13,8 @@ export default class Board extends React.Component {
   constructor(props) {
     super(props);
 
+    this.mainSize = 35;
+    this.mobileSize = 20;
     let boardParams = this.generateBoard();
     let rows = boardParams[0];
     let columns = boardParams[1];
@@ -47,15 +49,21 @@ export default class Board extends React.Component {
 
   generateBoard() {
     const width = window.innerWidth;
-    const height = window.innerHeight-60;
+    const height = window.innerHeight-100;
     let rows, columns, squareSize;
     if(width > height) {
-      columns = 35;
+      if(width < 600)
+        columns = this.mobileSize;
+      else
+        columns = this.mainSize;
       squareSize = Math.floor(width/columns);
       rows = Math.floor(height/squareSize);
     }
     else {
-      rows = 35;
+      if(height < 600)
+        rows = this.mobileSize;
+      else
+        rows = this.mainSize;
       squareSize = Math.floor(height/rows);
       columns = Math.floor(width/squareSize);
     }
@@ -228,6 +236,7 @@ export default class Board extends React.Component {
   }
 
   componentDidMount() {
+    document.title = "Maze Solver";
     ["resize", "fullscreenchange"].forEach(e => window.addEventListener(e, this.resetBoard));
   }
   
