@@ -30,7 +30,7 @@ function recursive(leftUp, rightDown) {
   if(height > width) {
     // horizontal split
     let wall = random_even_int(leftUp[0]+1, leftUp[0]+height-1);
-    let space = [wall, random_even_int(leftUp[1], rightDown[1])];
+    let space = [wall, random_even_int(leftUp[1], rightDown[1]-1)];
     for(let i=leftUp[1]; i <= rightDown[1]; i++) { 
       if(grid[wall][i] > 1 ||
         array_equals(space, [wall, i]))
@@ -43,7 +43,7 @@ function recursive(leftUp, rightDown) {
   else {
     // vertical split
     let wall = random_even_int(leftUp[1]+1, leftUp[1]+width-1);
-    let space = [random_even_int(leftUp[0], rightDown[0]), wall];
+      let space = [random_even_int(leftUp[0], rightDown[0]-1), wall];
     for(let i=leftUp[0]; i <= rightDown[0]; i++) {
       if(grid[i][wall] > 1 ||
         array_equals(space, [i, wall]))
