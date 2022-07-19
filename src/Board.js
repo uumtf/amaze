@@ -23,8 +23,8 @@ export default class Board extends React.Component {
       squareSize: squareSize,
       columns: columns, 
       rows: rows,
-      startPoint: [0, 0],
-      endPoint: [rows-1, columns-1],
+      startPoint: [1, 1],
+      endPoint: [rows-2, columns-2],
       board: fill_matrix(rows, columns, 0),
       mouseIsDown: undefined,
       pathOnBoard: false
@@ -216,11 +216,11 @@ export default class Board extends React.Component {
     this.state.board = fill_matrix(rows, columns, value);
 
     if(startPoint == undefined)
-      startPoint = [0, 0]
+      startPoint = [1, 1]
     this.state.board[startPoint[0]][startPoint[1]] = 2;
 
     if(endPoint == undefined)
-      endPoint = [rows-1, columns-1]
+      endPoint = [rows-2, columns-2]
     this.state.board[endPoint[0]][endPoint[1]] = 3;
 
     this.setState({
